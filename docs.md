@@ -9,7 +9,7 @@ pub struct Parser {
 }
 ```
 
-#### Init parser from file.
+#### Init parser from file. (Static).
 ```rust
 pub fn from_file(filename: &str) -> Parser
 ```
@@ -140,4 +140,29 @@ pub fn valid_op(&self, op: &str) -> bool
 pub fn repr(&self, op: &str) -> &str
 ```
 
-## Err.rs
+## Errs.rs
+
+#### Errors struct.
+```rust
+pub struct Errors {
+    pub not_a_number: i64,
+    pub invalid_operator: i64,
+    pub invalid_body: i64,
+    pub cant_count: i64
+}
+```
+
+#### Represent code to hex.
+```rust
+pub fn repr_code(&self, code: i64) -> &str
+```
+
+#### Return error name by code.
+```rust
+pub fn by_code(&self, code: i64) -> &str
+```
+
+#### Print error using user codes.
+```rust
+pub fn err(&self, code: i64)
+```
