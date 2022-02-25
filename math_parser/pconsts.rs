@@ -32,4 +32,4 @@ pub const parser_comma: char = ',';
 pub const parser_space: char = ' ';
 
 /// Parser version.
-pub const version: f32 = 1.0;
+pub const version: f32 = 1.1;
