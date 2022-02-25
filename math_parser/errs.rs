@@ -29,7 +29,7 @@ impl Errors {
     }
 
     /// Print error.
-    pub fn err(&self, code: i64) {
+    pub fn err(&self, code: i64) -> () {
         println!("{}", format!("error: {} [{}] ({});", self.repr_code(code), code, self.by_code(code)));
     }
 }
