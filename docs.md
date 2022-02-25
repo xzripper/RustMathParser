@@ -164,5 +164,5 @@ pub fn by_code(&self, code: i64) -> &str
 
 #### Print error using user codes.
 ```rust
-pub fn err(&self, code: i64)
+pub fn err(&self, code: i64) -> ()
 ```
