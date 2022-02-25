@@ -169,6 +169,7 @@ impl Parser {
         return entities[entity];
     }
 
+    /// Format parsing result.
     pub fn format_res(&self, res: Vec<HashMap<&str, &str>>) -> &str {
         let mut formatted: String = String::new();
 
