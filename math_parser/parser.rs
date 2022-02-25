@@ -13,7 +13,7 @@ pub struct Parser {
 impl Parser {
     /// Init parser with string from file.
     pub fn from_file(filename: &str) -> Parser {
-        let content = read_to_string(filename).expect("Failed to read file.");
+        let content: String = read_to_string(filename).expect("Failed to read file.");
 
         return Parser {
             string: Box::leak(content.into_boxed_str())
