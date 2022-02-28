@@ -177,7 +177,7 @@ impl Parser {
             formatted.push_str(Box::leak(format!("First: {}, Second: {}, Operator: {}, Result: {}.\n", pars_res["first"], pars_res["second"], pars_res["operator"], pars_res["result"]).into_boxed_str()));
         }
 
-        return Box::leak(formatted.into_boxed_str())
+        return Box::leak(formatted.into_boxed_str());
     }
 
     /// Get parser version.
