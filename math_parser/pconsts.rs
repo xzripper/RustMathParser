@@ -31,5 +31,8 @@ pub const parser_comma: char = ',';
 /// Space character for parser.
 pub const parser_space: char = ' ';
 
+/// Dot character for parser.
+pub const parser_dot: char = '.';
+
 /// Parser version.
 pub const version: f32 = 1.1;
