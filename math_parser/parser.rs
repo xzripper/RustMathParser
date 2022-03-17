@@ -62,15 +62,22 @@ impl Parser {
         } else if operation == pconsts::ParserOperators.divide {
             return x / y;
         } else {
-            return 1;
+            return -0;
         }
     }
 
     /// Convert string to integer.
     pub fn as_integer(&self, entity: &str) -> i64 {
-        let as_int: i64 = entity.parse().unwrap();
+        let as_int: i64 = entity.parse::<i64>().unwrap();
 
         return as_int;
+    }
+
+    /// Convert string to float.
+    pub fn as_float(&self, entity: &str) -> f64 {
+        let as_float: f64 = entity.parse::<f64>().unwrap();
+
+        return as_float;
     }
 
     /// Convert integer to string.
@@ -78,7 +85,26 @@ impl Parser {
         return Box::leak(entity.to_string().into_boxed_str());
     }
 
-    /// Convert integer to string.
+    /// Convert float to string.
+    pub fn as_float_string(&self, entity: f64) -> &str {
+        return Box::leak(entity.to_string().into_boxed_str())
+    }
+
+    /// Is string matches digit template.
+    pub fn is_integer(&self, entity: &str) -> bool {
+        let as_str_a_int: bool = entity.parse::<i64>().is_ok();
+
+        return as_str_a_int;
+    }
+
+    /// Is string matches float template.
+    pub fn is_float(&self, entity: &str) -> bool {
+        let is_str_a_float: bool = entity.parse::<f64>().is_ok() && entity.contains(pconsts::parser_dot);
+
+        return is_str_a_float;
+    }
+
+    /// Parse entities from string.
     pub fn parse_entities<'a>(&'a self, string: &'a str) -> HashMap<&'a str, &'a str> {
         let mut parsed: HashMap<&str, &str> = HashMap::new();
 
@@ -99,7 +125,7 @@ impl Parser {
         let operator: &str = entities[1];
         let second_entity: &str = entities[2];
 
-        if first_entity.as_bytes()[0].is_ascii_digit() {
+        if self.is_integer(first_entity) || self.is_float(first_entity) {
             parsed.insert("first", first_entity);
         } else {
             pconsts::ParserErrors.err(pconsts::ParserErrors.not_a_number);
@@ -107,7 +133,7 @@ impl Parser {
             parsed.insert("first", pconsts::NaN);
         }
 
-        if second_entity.as_bytes()[0].is_ascii_digit() {
+        if self.is_integer(second_entity) || self.is_float(second_entity) {
             parsed.insert("second", second_entity);
         } else {
             pconsts::ParserErrors.err(pconsts::ParserErrors.not_a_number);
@@ -123,21 +149,58 @@ impl Parser {
             parsed.insert("operator", Box::leak(format!("{} ({})", pconsts::Unknown, operator).into_boxed_str()));
         }
 
-        if parsed["first"] != pconsts::NaN && parsed["second"] != pconsts::NaN && parsed["operator"] != pconsts::Unknown {
-            if second_entity == "0" && operator == pconsts::ParserOperators.divide {
+        if parsed["first"] != pconsts::NaN && parsed["second"] != pconsts::NaN && parsed["operator"] != Box::leak(format!("{} ({})", pconsts::Unknown, operator).into_boxed_str()) {
+            if second_entity.replace(pconsts::parser_dot, "").chars().all(|character| character == '0') && operator == pconsts::ParserOperators.divide {
                 pconsts::ParserErrors.err(pconsts::ParserErrors.cant_count);
 
                 parsed.insert("result", pconsts::NaN);
             } else {
-                parsed.insert(
-                    "result", self.as_string(
-                        self.solve_problem(
-                            self.as_integer(first_entity),
-                            self.as_integer(second_entity),
-                            operator
+                if self.is_float(first_entity) || self.is_float(second_entity) {
+                    let mut second_float: f64 = 0.0;
+
+                    if self.is_float(second_entity) {
+                        second_float = self.as_float(second_entity);
+                    }
+
+                    let mut result: f64;
+
+                    if self.is_float(first_entity) {
+                        result = self.as_float(first_entity);
+                    } else {
+                        if self.is_integer(first_entity) {
+                            result = self.as_integer(first_entity) as f64;
+                        } else {
+                            pconsts::ParserErrors.err(pconsts::ParserErrors.not_a_number);
+
+                            parsed.insert("result", pconsts::NaN);
+                            parsed.insert("first", pconsts::NaN);
+
+                            result = -0.0;
+                        }
+                    }
+
+                    if operator == pconsts::ParserOperators.plus {
+                        result += second_float;
+                    } else if operator == pconsts::ParserOperators.minus {
+                        result -= second_float;
+                    } else if operator == pconsts::ParserOperators.multiply {
+                        result *= second_float;
+                    } else if operator == pconsts::ParserOperators.divide {
+                        result /= second_float;
+                    }
+
+                    parsed.insert("result", self.as_float_string(result));
+                } else {
+                    parsed.insert(
+                        "result", self.as_string(
+                            self.solve_problem(
+                                self.as_integer(first_entity),
+                                self.as_integer(second_entity),
+                                operator
+                            )
                         )
-                    )
-                );
+                    );
+                }
             }
         } else {
             parsed.insert("result", pconsts::NaN);
@@ -158,7 +221,7 @@ impl Parser {
         return parsed;
     }
 
-    /// Get enitity from parse results.
+    /// Get entity from parse results.
     pub fn get_entity<'a>(&'a self, string: &'a str, entity: &str) -> &str {
         let entities: HashMap<&str, &str> = self.parse_entities(string);
 
